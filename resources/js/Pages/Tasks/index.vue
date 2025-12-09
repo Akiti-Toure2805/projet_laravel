@@ -1,14 +1,27 @@
 <script setup>
+import { Link } from '@inertiajs/vue3';
+
 defineProps({
     tasks: Array
 });
 </script>
 
+
 <template>
   <div class="p-6">
-    <h1 class="text-2xl font-bold mb-4">Liste des tâches</h1>
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-2xl font-bold">Liste des tâches</h1>
+
+      <Link
+        href="/tasks/create"
+        class="inline-flex items-center px-4 py-2 rounded bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 focus:outline-none focus:ring focus:ring-indigo-300"
+      >
+        + Ajouter une tâche
+      </Link>
+    </div>
 
     <div class="bg-white shadow rounded-lg p-4">
+      <!-- ton tableau reste pareil ici -->
       <table class="w-full border-collapse">
         <thead>
           <tr class="bg-gray-100">
@@ -16,6 +29,7 @@ defineProps({
             <th class="p-2 text-left">Statut</th>
             <th class="p-2 text-left">Assigné à</th>
             <th class="p-2 text-left">Échéance</th>
+            <th class="p-2 text-left">Actions</th>
           </tr>
         </thead>
 
