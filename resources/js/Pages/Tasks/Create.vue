@@ -1,6 +1,6 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import { Head, Link, useForm } from "@inertiajs/vue3";
 
 const props = defineProps({
   statuses: {
@@ -14,15 +14,15 @@ const props = defineProps({
 });
 
 const form = useForm({
-  title: '',
-  description: '',
-  status_id: props.statuses[0]?.id ?? '',
-  user_id: '',
-  due_date: '',
+  title: "",
+  description: "",
+  status_id: props.statuses[0]?.id ?? "",
+  user_id: "",
+  due_date: "",
 });
 
 function submit() {
-  form.post(route('tasks.store'));
+  form.post(route("tasks.store"));
 }
 </script>
 
@@ -32,9 +32,7 @@ function submit() {
   <AuthenticatedLayout>
     <template #header>
       <div class="flex items-center justify-between">
-        <h2 class="text-xl font-semibold leading-tight text-gray-800">
-          Créer une tâche
-        </h2>
+        <h2 class="text-xl font-semibold leading-tight text-gray-800">Créer une tâche</h2>
 
         <Link
           :href="route('tasks.index')"
@@ -52,9 +50,7 @@ function submit() {
             <form @submit.prevent="submit" class="space-y-4">
               <!-- Titre -->
               <div>
-                <label class="block text-sm font-medium text-gray-700">
-                  Titre
-                </label>
+                <label class="block text-sm font-medium text-gray-700"> Titre </label>
                 <input
                   v-model="form.title"
                   type="text"
@@ -82,9 +78,7 @@ function submit() {
 
               <!-- Statut -->
               <div>
-                <label class="block text-sm font-medium text-gray-700">
-                  Statut
-                </label>
+                <label class="block text-sm font-medium text-gray-700"> Statut </label>
                 <select
                   v-model="form.status_id"
                   class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
@@ -105,19 +99,13 @@ function submit() {
 
               <!-- Assigné à (liste des users) -->
               <div>
-                <label class="block text-sm font-medium text-gray-700">
-                  Assigné à
-                </label>
+                <label class="block text-sm font-medium text-gray-700"> Assigné à </label>
                 <select
                   v-model="form.user_id"
                   class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 >
                   <option value="">Moi (utilisateur connecté)</option>
-                  <option
-                    v-for="user in props.users"
-                    :key="user.id"
-                    :value="user.id"
-                  >
+                  <option v-for="user in props.users" :key="user.id" :value="user.id">
                     {{ user.name }}
                   </option>
                 </select>
@@ -128,9 +116,7 @@ function submit() {
 
               <!-- Échéance -->
               <div>
-                <label class="block text-sm font-medium text-gray-700">
-                  Échéance
-                </label>
+                <label class="block text-sm font-medium text-gray-700"> Échéance </label>
                 <input
                   v-model="form.due_date"
                   type="date"
