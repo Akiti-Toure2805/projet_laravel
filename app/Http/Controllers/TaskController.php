@@ -12,13 +12,15 @@ use Illuminate\Http\Request;
 class TaskController extends Controller
 {
     public function index()
-    {
-        $tasks = Task::with(['user', 'status'])->get();
+{
+    $tasks = Task::with(['user', 'status'])->get();
 
-        return Inertia::render('Tasks/Index', [
-            'tasks' => $tasks,
-        ]);
-    }
+    return Inertia::render('Tasks/Index', [
+        'tasks'    => $tasks,
+        'statuses' => Status::all(['id', 'name', 'color']), // ✅ pour le <select>
+    ]);
+}
+
 
     public function create()
     {
@@ -83,4 +85,30 @@ class TaskController extends Controller
             ->route('tasks.index')
             ->with('success', 'Tâche supprimée avec succès.');
     }
+
+
+    public function updateStatus(Request $request, Task $task)
+{
+    $data = $request->validate([
+        'status_id' => 'required|exists:statuses,id',
+    ]);
+
+    $task->update($data);
+
+    return redirect()
+        ->route('tasks.index')
+        ->with('success', 'Statut mis à jour avec succès.');
+}
+
+
+
+
+
+
+
+
+
+
+
+
 }

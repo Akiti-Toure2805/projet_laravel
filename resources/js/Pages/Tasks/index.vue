@@ -1,15 +1,30 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Link, router } from "@inertiajs/vue3";
+import { Link, router, usePage } from "@inertiajs/vue3";
 
-defineProps({
+const props = defineProps({
   tasks: Array,
+  statuses: Array,
 });
+
+const page = usePage();
 
 const handleDelete = (id) => {
   if (confirm("Supprimer cette tâche ?")) {
     router.delete(`/tasks/${id}`);
   }
+};
+
+const handleStatusChange = (task, event) => {
+  const newStatusId = event.target.value;
+
+  router.patch(
+    `/tasks/${task.id}/status`,
+    { status_id: newStatusId },
+    {
+      preserveScroll: true,
+    }
+  );
 };
 </script>
 
@@ -17,7 +32,6 @@ const handleDelete = (id) => {
   <Head title="Liste des tâches" />
 
   <AuthenticatedLayout>
-
     <div class="p-6">
       <div class="flex items-center justify-between mb-4">
         <h1 class="text-2xl font-bold">Liste des tâches</h1>
@@ -50,12 +64,17 @@ const handleDelete = (id) => {
               <td class="p-2">{{ task.description }}</td>
 
               <td class="p-2">
-                <span
-                  class="px-2 py-1 rounded text-white text-xs"
-                  :style="{ background: task.status.color }"
+                <select
+                  class="text-xs px-2 py-1 rounded text-white border-0 cursor-pointer"
+                  :style="{ background: task.status?.color || '#6b7280' }"
+                  :value="task.status_id"
+                  @change="(e) => handleStatusChange(task, e)"
+                  title="Changer le statut"
                 >
-                  {{ task.status.name }}
-                </span>
+                  <option v-for="status in statuses" :key="status.id" :value="status.id">
+                    {{ status.name }}
+                  </option>
+                </select>
               </td>
 
               <td class="p-2">{{ task.user.name }}</td>
