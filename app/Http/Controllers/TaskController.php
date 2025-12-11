@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Notifications\TaskAssigned;
+use Illuminate\Support\Facades\Notification; // facultatif si tu utilises ->notify()
+
+
 use Illuminate\Support\Facades\Auth;
 use App\Models\Task;
 use Inertia\Inertia;
@@ -30,25 +34,32 @@ class TaskController extends Controller
         ]);
     }
 
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'title'       => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status_id'   => 'required|exists:statuses,id',
-            'user_id'     => 'nullable|exists:users,id',
-            'due_date'    => 'nullable|date',
-        ]);
+   public function store(Request $request)
+{
+    $data = $request->validate([
+        'title'       => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'status_id'   => 'required|exists:statuses,id',
+        'user_id'     => 'nullable|exists:users,id',
+        'due_date'    => 'nullable|date',
+    ]);
 
-        if (empty($data['user_id'])) {
-            $data['user_id'] = Auth::id();
-        }
-
-        Task::create($data);
-
-        return redirect()->route('tasks.index')
-            ->with('success', 'Tâche créée avec succès.');
+    if (empty($data['user_id'])) {
+        $data['user_id'] = Auth::id();
     }
+
+    // ✅ on récupère la tâche créée
+    $task = Task::create($data);
+
+    // ✅ notifier la personne assignée (si elle existe)
+    if ($task->user) {
+        $task->user->notify(new TaskAssigned($task));
+    }
+
+    return redirect()->route('tasks.index')
+        ->with('success', 'Tâche créée avec succès.');
+}
+
 
     // 🔁 EDIT CORRIGÉ
     public function edit(Task $task)
@@ -61,21 +72,29 @@ class TaskController extends Controller
     }
 
     public function update(Request $request, Task $task)
-    {
-        $data = $request->validate([
-            'title'       => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status_id'   => 'required|exists:statuses,id',
-            'user_id'     => 'required|exists:users,id',
-            'due_date'    => 'nullable|date',
-        ]);
+{
+    $data = $request->validate([
+        'title'       => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'status_id'   => 'required|exists:statuses,id',
+        'user_id'     => 'required|exists:users,id',
+        'due_date'    => 'nullable|date',
+    ]);
 
-        $task->update($data);
+    $previousUserId = $task->user_id;
 
-        return redirect()
-            ->route('tasks.index')
-            ->with('success', 'Tâche mise à jour avec succès.');
+    $task->update($data);
+
+    // si l'utilisateur assigné a changé → notifier le nouveau
+    if ($task->user_id !== $previousUserId && $task->user) {
+        $task->user->notify(new TaskAssigned($task));
     }
+
+    return redirect()
+        ->route('tasks.index')
+        ->with('success', 'Tâche mise à jour avec succès.');
+}
+
 
     public function destroy(Task $task)
     {
